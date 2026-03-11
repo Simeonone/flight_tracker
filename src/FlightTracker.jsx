@@ -60,12 +60,13 @@ function PixelCloud({ x, y, w, h, opacity = 0.18 }) {
 }
 
 function PixelPlane({ progress, color, flip }) {
-  // progress: 0..1 across the sky strip
-  const px = 4 + progress * 88; // % across
-  const py = 42; // % down the sky
+  // Convert to real viewBox coords (800 x 180)
+  const px = (4 + progress * 88) * 800 / 100; // pixels across
+  const py = 75; // fixed vertical position in the sky
   const scale = flip ? -1 : 1;
   return (
-    <g transform={`translate(${px}%, ${py}%) scale(${scale},1)`} style={{ transition: "all 2s linear" }}>
+    <g transform={`translate(${px}, ${py}) scale(${scale},1)`} style={{ transition: "all 2s linear" }}>
+      <g style={{ animation: "bob 2.4s ease-in-out infinite" }}>
       {/* fuselage */}
       <rect x="-14" y="-4" width="28" height="8" fill={color} />
       {/* nose */}
@@ -79,6 +80,7 @@ function PixelPlane({ progress, color, flip }) {
       {/* window */}
       <rect x="2" y="-2" width="4" height="4" fill="#ffffffaa" />
       <rect x="-4" y="-2" width="4" height="4" fill="#ffffff66" />
+      </g>
     </g>
   );
 }
@@ -512,19 +514,16 @@ export default function FlightTracker() {
 
             {/* plane or dino */}
             {inAir ? (
-              <g style={{ animation: "bob 2.4s ease-in-out infinite" }}>
-                <PixelPlane
-                  progress={progress}
-                  color={activeFlight?.color}
-                  flip={false}
-                />
-              </g>
+              <PixelPlane
+                progress={progress}
+                color={activeFlight?.color}
+                flip={false}
+              />
             ) : (
-              <g
-                transform="translate(60, 126)"
-                style={{ animation: "dinoWalk 0.5s steps(1) infinite" }}
-              >
-                <PixelDino />
+              <g transform="translate(60, 122)">
+                <g style={{ animation: "dinoWalk 0.5s steps(1) infinite" }}>
+                  <PixelDino />
+                </g>
               </g>
             )}
 
